@@ -1,5 +1,3 @@
-use anyhow::{Error, Result};
-
 #[derive(Debug)]
 enum Operation {
     Add,
@@ -240,6 +238,31 @@ fn eval_expr(ast: &Node) -> u32 {
             Operation::Mult => eval_expr(rhs) * eval_expr(lhs),
         },
         Node::Int(num) => *num,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    macro_rules! parse_and_eval {
+        ($e: expr, $a: expr) => {
+            let val: &str = $e;
+            let ans: u32 = $a;
+            let tokens = crate::tokenize(val);
+            let parsed = crate::parse(tokens);
+            let ast = crate::create_AST(parsed);
+            let result = crate::eval_expr(&ast);
+            assert_eq!(result, ans);
+        };
+    }
+
+    #[test]
+    fn test_one_plus_one() {
+        parse_and_eval!("(1 + 1)", 2);
+    }
+
+    #[test]
+    fn test_two_digits() {
+        parse_and_eval!("(13 + 13)", 26);
     }
 }
 
