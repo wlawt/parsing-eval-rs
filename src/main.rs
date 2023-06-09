@@ -1,5 +1,6 @@
 use anyhow::{Error, Result};
 
+#[derive(Debug)]
 enum Operation {
     Add,
     Mult,
@@ -11,6 +12,7 @@ enum Operation {
 
 // 1 + 2
 
+#[derive(Debug)]
 enum Node {
     Int(u32),
     Expr {
@@ -199,7 +201,8 @@ fn parse(tokens: Vec<String>) -> Vec<String> {
     return root;
 }*/
 
-fn createAST(post: Vec<String>) -> Node {
+#[allow(non_snake_case)]
+fn create_AST(post: Vec<String>) -> Node {
     let mut nodes: Vec<Node> = Vec::new();
 
     for token in post.iter() {
@@ -230,10 +233,22 @@ fn createAST(post: Vec<String>) -> Node {
     return nodes.pop().unwrap();
 }
 
+fn eval_expr(ast: &Node) -> u32 {
+    match ast {
+        Node::Expr { op, rhs, lhs } => match op {
+            Operation::Add => eval_expr(rhs) + eval_expr(lhs),
+            Operation::Mult => eval_expr(rhs) * eval_expr(lhs),
+        },
+        Node::Int(num) => *num,
+    }
+}
+
 fn main() {
     let expr: &str = "(13 + 2)";
 
     let tokens = tokenize(&expr);
     let parsed = parse(tokens);
-    let ast = createAST(parsed);
+    let ast = create_AST(parsed);
+    let result = eval_expr(&ast);
+    println!("{}", result);
 }
